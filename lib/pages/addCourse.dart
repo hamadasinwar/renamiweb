@@ -431,11 +431,11 @@ class _AddCourseState extends State<AddCourse> {
       var d = (user.get("dateOFBirth") as Timestamp).toDate();
       var userAge = _calculateAge(d);
       var ageLimit = '';
-      if (userAge < 20) {
+      if (userAge <= 20) {
         ageLimit = "lessThan20";
       } else if (40 > userAge && userAge > 20) {
         ageLimit = "between20and40";
-      } else {
+      } else if(userAge >= 40) {
         ageLimit = "moreThan40";
       }
       if (user.get('gender').toString() == g ||
@@ -447,7 +447,6 @@ class _AddCourseState extends State<AddCourse> {
         }
       }
     }
-
     if (imageUrl.isEmpty && videoUrl.text.isEmpty)
       return AwesomeDialog(
           width: MediaQuery.of(context).size.width * .3,
@@ -476,7 +475,8 @@ class _AddCourseState extends State<AddCourse> {
         'users': []
       }).then((value) async {
         await PushNotification.sendNotification(
-            tokens, title.text, "دورة جديدة");
+            tokens, title.text, "دورة جديدة", imageUrl
+        );
         Navigator.of(context).pop();
         Navigator.of(context).pushReplacementNamed(MyHomePage.route);
       }).catchError((e) {

@@ -12,6 +12,8 @@ import 'package:renawiweb/pages/users.dart';
 import 'package:renawiweb/pages/welcome.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:renawiweb/services/firestore_services.dart';
+import 'package:renawiweb/services/push_notification.dart';
 
 import 'login/login.dart';
 
@@ -22,7 +24,6 @@ Future main() async {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -31,8 +32,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.purple,
       ),
-      home: Login()
-      //   MyHomePage(index: 0, courseId: '',)
+      home: //Login()
+        MyHomePage(index: 0, courseId: '',)
       ,
       routes: {
         MyHomePage.route: (context) => MyHomePage(

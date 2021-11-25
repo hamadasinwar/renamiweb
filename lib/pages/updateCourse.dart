@@ -26,7 +26,7 @@ class UpdateCourse extends StatefulWidget {
 }
 
 class _UpdateCourseState extends State<UpdateCourse> {
-  var data;
+  late Map<String, dynamic> data;
   bool getComplete = false;
   bool chooseImage = false;
   String imageUrl = '';
@@ -39,7 +39,7 @@ class _UpdateCourseState extends State<UpdateCourse> {
         .get()
         .then((value) {
       setState(() {
-        data = value.data();
+        data = value.data()??<String, dynamic>{};
       });
     }).then((_) {
       title = TextEditingController(text: data['title']);
@@ -421,23 +421,6 @@ class _UpdateCourseState extends State<UpdateCourse> {
     );
   }
 
-  int _calculateAge(DateTime birthDate) {
-    DateTime currentDate = DateTime.now();
-    int age = currentDate.year - birthDate.year;
-    int month1 = currentDate.month;
-    int month2 = birthDate.month;
-    if (month2 > month1) {
-      age--;
-    } else if (month1 == month2) {
-      int day1 = currentDate.day;
-      int day2 = birthDate.day;
-      if (day2 > day1) {
-        age--;
-      }
-    }
-    return age;
-  }
-
   updateCourse(context) async {
     List<String> tokens = [];
     var g = "";
@@ -455,26 +438,18 @@ class _UpdateCourseState extends State<UpdateCourse> {
     } else {
       a = "moreThan40";
     }
-    for (var user in users) {
-      var d = (user.get("dateOFBirth") as Timestamp).toDate();
-      var userAge = _calculateAge(d);
-      var ageLimit = '';
-      if (userAge < 20) {
-        ageLimit = "lessThan20";
-      } else if (40 > userAge && userAge > 20) {
-        ageLimit = "between20and40";
-      } else {
-        ageLimit = "moreThan40";
-      }
-      if (user.get('gender').toString() == g ||
-          user.get('socialStatus').toString() == s ||
-          ageLimit == a) {
-        var token = user.get("token").toString();
-        if (token.isNotEmpty && token != "") {
-          tokens.add(token);
-        }
-      }
+
+    for(var user in data['users']){
+      var u = await FirebaseFirestore
+          .instance
+          .collection("centers")
+          .doc('renawi')
+          .collection('users')
+          .doc(user).get();
+      tokens.add(u.get('token').toString());
     }
+
+    print(tokens[0]);
 
     if (imageUrl.isEmpty && videoUrl.text.isEmpty)
       return AwesomeDialog(
@@ -504,7 +479,8 @@ class _UpdateCourseState extends State<UpdateCourse> {
         'social': s
       }).then((value) async {
         await PushNotification.sendNotification(
-            tokens, title.text, "دورة جديدة");
+            tokens, title.text, "تم تعديل الدورة", imageUrl
+        );
         Navigator.of(context).pop();
         Navigator.of(context).pushReplacementNamed(MyHomePage.route);
       }).catchError((e) {
@@ -513,13 +489,13 @@ class _UpdateCourseState extends State<UpdateCourse> {
             title: "خطأ",
             body: Text(e.toString()),
             dialogType: DialogType.ERROR)
-          ..show();
+          .show();
       });
     }
   }
 
   Widget createRow(
-    String Status,
+    String status,
     List<DropdownMenuItem<String>> choices,
     String selected,
   ) {
@@ -528,7 +504,7 @@ class _UpdateCourseState extends State<UpdateCourse> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Text(Status),
+          Text(status),
           Spacer(),
           DropdownButton(
             value: selected,

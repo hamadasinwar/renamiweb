@@ -239,15 +239,16 @@ class _AddPostState extends State<AddPost> {
   }
 
   addPost(context) async {
-    List<String> tokens = [];
-    if (imageUrl.isEmpty && videoUrl.text.isEmpty)
+    List<String> tokens = await FirestoreServices.getAllTokens();
+    if (imageUrl.isEmpty && videoUrl.text.isEmpty) {
       return AwesomeDialog(
           width: MediaQuery.of(context).size.width * .3,
           context: context,
           title: "هام",
-          body: Text("يجب إضافة صورةأو رابط لفيديو توضيحي   "),
+          body: const Text("يجب إضافة صورةأو رابط لفيديو توضيحي   "),
           dialogType: DialogType.ERROR)
-        ..show();
+        .show();
+    }
     var formData = formState.currentState;
     if (formData!.validate()) {
       showLoading(context);
@@ -260,7 +261,8 @@ class _AddPostState extends State<AddPost> {
         'createdAt': Timestamp.now(),
       }).then((value) async {
         await PushNotification.sendNotification(
-            tokens, title.text, "دورة جديدة");
+            tokens, title.text, "منشور جديد", imageUrl
+        );
         Navigator.of(context).pop();
         Navigator.of(context).pushReplacementNamed(MyHomePage.route);
       }).catchError((e) {
@@ -269,7 +271,7 @@ class _AddPostState extends State<AddPost> {
             title: "خطأ",
             body: Text(e.toString()),
             dialogType: DialogType.ERROR)
-          ..show();
+          .show();
       });
     }
   }
