@@ -220,8 +220,7 @@ class _CartState extends State<Cart> {
 
   void _launchWhatsappClient() async {
     int phone = int.parse(widget.userData['phone'].toString());
-    var whatsappUrl = "whatsapp://send?phone=00972$phone";
-    print(whatsappUrl);
+    var whatsappUrl = "https://web.whatsapp.com/send/?phone=$phone";
     try {
       await launch(whatsappUrl);
     } catch (e) {}
@@ -236,7 +235,7 @@ class _CartState extends State<Cart> {
       },
     );
     Widget allUsersButton = TextButton(
-      child: Text("إرسال إيميل لجميع المشتركين"),
+      child: const Text("إرسال إيميل لجميع المشتركين"),
       onPressed: () {
         _launchAllMailClient();
         Navigator.of(context).pop();
